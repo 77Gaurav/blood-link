@@ -14,16 +14,312 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      blood_inventory: {
+        Row: {
+          blood_bank_id: string
+          blood_group: Database["public"]["Enums"]["blood_group"]
+          city: string
+          created_at: string
+          id: string
+          quantity: number
+          updated_at: string
+        }
+        Insert: {
+          blood_bank_id: string
+          blood_group: Database["public"]["Enums"]["blood_group"]
+          city: string
+          created_at?: string
+          id?: string
+          quantity?: number
+          updated_at?: string
+        }
+        Update: {
+          blood_bank_id?: string
+          blood_group?: Database["public"]["Enums"]["blood_group"]
+          city?: string
+          created_at?: string
+          id?: string
+          quantity?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      conversations: {
+        Row: {
+          blood_bank_id: string
+          created_at: string
+          emergency_post_id: string | null
+          hospital_id: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          blood_bank_id: string
+          created_at?: string
+          emergency_post_id?: string | null
+          hospital_id: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          blood_bank_id?: string
+          created_at?: string
+          emergency_post_id?: string | null
+          hospital_id?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      emergency_posts: {
+        Row: {
+          blood_group: Database["public"]["Enums"]["blood_group"]
+          contact_phone: string
+          created_at: string | null
+          description: string | null
+          id: string
+          location: string
+          posted_by: string
+          quantity: number
+          status: string
+          updated_at: string | null
+          urgency_level: string
+        }
+        Insert: {
+          blood_group: Database["public"]["Enums"]["blood_group"]
+          contact_phone: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          location: string
+          posted_by: string
+          quantity: number
+          status?: string
+          updated_at?: string | null
+          urgency_level: string
+        }
+        Update: {
+          blood_group?: Database["public"]["Enums"]["blood_group"]
+          contact_phone?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          location?: string
+          posted_by?: string
+          quantity?: number
+          status?: string
+          updated_at?: string | null
+          urgency_level?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emergency_posts_posted_by_fkey"
+            columns: ["posted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          read: boolean
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      participations: {
+        Row: {
+          age: number | null
+          city: string | null
+          contact_number: string | null
+          created_at: string | null
+          emergency_id: string
+          gender: string | null
+          id: string
+          message: string | null
+          status: string
+          volunteer_id: string
+          volunteer_name: string | null
+          weight: number | null
+        }
+        Insert: {
+          age?: number | null
+          city?: string | null
+          contact_number?: string | null
+          created_at?: string | null
+          emergency_id: string
+          gender?: string | null
+          id?: string
+          message?: string | null
+          status?: string
+          volunteer_id: string
+          volunteer_name?: string | null
+          weight?: number | null
+        }
+        Update: {
+          age?: number | null
+          city?: string | null
+          contact_number?: string | null
+          created_at?: string | null
+          emergency_id?: string
+          gender?: string | null
+          id?: string
+          message?: string | null
+          status?: string
+          volunteer_id?: string
+          volunteer_name?: string | null
+          weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "participations_emergency_id_fkey"
+            columns: ["emergency_id"]
+            isOneToOne: false
+            referencedRelation: "emergency_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "participations_volunteer_id_fkey"
+            columns: ["volunteer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          age: number | null
+          blood_type: string | null
+          city: string | null
+          created_at: string | null
+          drinking_habit: string | null
+          full_name: string
+          gender: string | null
+          id: string
+          job_description: string | null
+          location: string | null
+          organization_name: string | null
+          phone: string | null
+          profile_completed: boolean | null
+          profile_picture_url: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          smoking_habit: string | null
+          updated_at: string | null
+          weight: number | null
+        }
+        Insert: {
+          age?: number | null
+          blood_type?: string | null
+          city?: string | null
+          created_at?: string | null
+          drinking_habit?: string | null
+          full_name: string
+          gender?: string | null
+          id: string
+          job_description?: string | null
+          location?: string | null
+          organization_name?: string | null
+          phone?: string | null
+          profile_completed?: boolean | null
+          profile_picture_url?: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          smoking_habit?: string | null
+          updated_at?: string | null
+          weight?: number | null
+        }
+        Update: {
+          age?: number | null
+          blood_type?: string | null
+          city?: string | null
+          created_at?: string | null
+          drinking_habit?: string | null
+          full_name?: string
+          gender?: string | null
+          id?: string
+          job_description?: string | null
+          location?: string | null
+          organization_name?: string | null
+          phone?: string | null
+          profile_completed?: boolean | null
+          profile_picture_url?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          smoking_habit?: string | null
+          updated_at?: string | null
+          weight?: number | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["user_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      blood_group: "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-"
+      user_role: "hospital" | "blood_bank" | "volunteer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +446,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      blood_group: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
+      user_role: ["hospital", "blood_bank", "volunteer"],
+    },
   },
 } as const

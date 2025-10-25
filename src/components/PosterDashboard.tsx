@@ -7,12 +7,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Droplet, MapPin, Clock, Trash2, Users, Phone, User, Weight, Calendar, Package, AlertCircle, CheckCircle } from "lucide-react";
+import { Plus, Droplet, MapPin, Clock, Trash2, Users, Phone, User, Weight, Calendar, Package, AlertCircle, CheckCircle, MessageSquare } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InventoryManagement } from "./InventoryManagement";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChatSystem } from "./ChatSystem";
 import {
   Dialog,
   DialogContent,
@@ -58,6 +59,7 @@ interface BloodAvailability {
   quantity: number;
   blood_bank_name: string;
   contact_phone: string;
+  blood_bank_id: string;
 }
 
 export const PosterDashboard = ({ userRole }: PosterDashboardProps) => {
@@ -67,6 +69,7 @@ export const PosterDashboard = ({ userRole }: PosterDashboardProps) => {
   const [openPostIds, setOpenPostIds] = useState<Set<string>>(new Set());
   const [availabilityCheck, setAvailabilityCheck] = useState<BloodAvailability[] | null>(null);
   const [showAvailabilityDialog, setShowAvailabilityDialog] = useState(false);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -79,6 +82,11 @@ export const PosterDashboard = ({ userRole }: PosterDashboardProps) => {
   });
 
   useEffect(() => {
+    const initUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) setCurrentUser(user.id);
+    };
+    initUser();
     fetchMyPosts();
 
     // Set up real-time subscription for new participations
@@ -186,7 +194,8 @@ export const PosterDashboard = ({ userRole }: PosterDashboardProps) => {
             city: item.city,
             quantity: item.quantity,
             blood_bank_name: profile?.organization_name || 'Unknown Blood Bank',
-            contact_phone: profile?.phone || 'N/A'
+            contact_phone: profile?.phone || 'N/A',
+            blood_bank_id: item.blood_bank_id
           };
         });
 
@@ -259,6 +268,49 @@ export const PosterDashboard = ({ userRole }: PosterDashboardProps) => {
     }
   };
 
+  const startConversation = async (bloodBankId: string, emergencyPostId: string) => {
+    try {
+      if (!currentUser) throw new Error("Not authenticated");
+
+      // Check if conversation already exists
+      const { data: existingConversation } = await supabase
+        .from("conversations")
+        .select("id")
+        .eq("hospital_id", currentUser)
+        .eq("blood_bank_id", bloodBankId)
+        .eq("emergency_post_id", emergencyPostId)
+        .single();
+
+      if (existingConversation) {
+        toast({
+          title: "Conversation exists",
+          description: "Opening existing conversation",
+        });
+        return;
+      }
+
+      // Create new conversation
+      const { error } = await supabase.from("conversations").insert({
+        hospital_id: currentUser,
+        blood_bank_id: bloodBankId,
+        emergency_post_id: emergencyPostId,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Conversation started! Check the Messages tab.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleDelete = async (id: string) => {
     try {
       const { error } = await supabase
@@ -278,7 +330,7 @@ export const PosterDashboard = ({ userRole }: PosterDashboardProps) => {
   if (userRole === 'blood_bank') {
     return (
       <Tabs defaultValue="posts" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 max-w-md">
+        <TabsList className="grid w-full grid-cols-3 max-w-2xl">
           <TabsTrigger value="posts" className="flex items-center gap-2">
             <Droplet className="h-4 w-4" />
             Emergency Posts
@@ -286,6 +338,10 @@ export const PosterDashboard = ({ userRole }: PosterDashboardProps) => {
           <TabsTrigger value="inventory" className="flex items-center gap-2">
             <Package className="h-4 w-4" />
             Inventory
+          </TabsTrigger>
+          <TabsTrigger value="messages" className="flex items-center gap-2">
+            <MessageSquare className="h-4 w-4" />
+            Messages
           </TabsTrigger>
         </TabsList>
         
@@ -437,6 +493,19 @@ export const PosterDashboard = ({ userRole }: PosterDashboardProps) => {
                               {item.contact_phone}
                             </a>
                           </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full mt-2"
+                            onClick={() => {
+                              // We'll need the emergency post ID to create conversation
+                              // For now, we'll pass null and create without post link
+                              startConversation(item.blood_bank_id, '');
+                            }}
+                          >
+                            <MessageSquare className="h-4 w-4 mr-2" />
+                            Start Chat
+                          </Button>
                         </div>
                       </Card>
                     ))}
@@ -593,14 +662,30 @@ export const PosterDashboard = ({ userRole }: PosterDashboardProps) => {
         <TabsContent value="inventory">
           <InventoryManagement />
         </TabsContent>
+
+        <TabsContent value="messages">
+          {currentUser && <ChatSystem currentUserId={currentUser} />}
+        </TabsContent>
       </Tabs>
     );
   }
 
   // For hospitals, show only posts (no inventory)
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <Tabs defaultValue="posts" className="space-y-6">
+      <TabsList className="grid w-full grid-cols-2 max-w-md">
+        <TabsTrigger value="posts" className="flex items-center gap-2">
+          <Droplet className="h-4 w-4" />
+          Emergency Posts
+        </TabsTrigger>
+        <TabsTrigger value="messages" className="flex items-center gap-2">
+          <MessageSquare className="h-4 w-4" />
+          Messages
+        </TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="posts" className="space-y-6">
+        <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold mb-2">Emergency Posts</h2>
           <p className="text-muted-foreground">Manage your blood requirement requests</p>
@@ -897,6 +982,11 @@ export const PosterDashboard = ({ userRole }: PosterDashboardProps) => {
           ))}
         </div>
       )}
-    </div>
+      </TabsContent>
+
+      <TabsContent value="messages">
+        {currentUser && <ChatSystem currentUserId={currentUser} />}
+      </TabsContent>
+    </Tabs>
   );
 };
