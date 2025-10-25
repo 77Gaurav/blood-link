@@ -306,13 +306,34 @@ export const PosterDashboard = ({ userRole }: PosterDashboardProps) => {
         conversationData.emergency_post_id = emergencyPostId;
       }
 
-      const { error } = await supabase.from("conversations").insert(conversationData);
+      const { data: newConversation, error: conversationError } = await supabase
+        .from("conversations")
+        .insert(conversationData)
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (conversationError) throw conversationError;
+
+      // Send initial message to blood bank
+      const initialMessage = `Hello, we found that you have the blood type we urgently need available in your inventory. Could you please reconfirm your availability and respond to us as soon as possible? Thank you.`;
+      
+      const { error: messageError } = await supabase.from("messages").insert({
+        conversation_id: newConversation.id,
+        sender_id: currentUser,
+        content: initialMessage,
+      });
+
+      if (messageError) throw messageError;
+
+      // Update conversation timestamp
+      await supabase
+        .from("conversations")
+        .update({ updated_at: new Date().toISOString() })
+        .eq("id", newConversation.id);
 
       toast({
         title: "Success",
-        description: "Chat started! Switching to messages...",
+        description: "Message sent to blood bank!",
       });
 
       setActiveTab("messages");
@@ -856,21 +877,9 @@ export const PosterDashboard = ({ userRole }: PosterDashboardProps) => {
               ))}
             </div>
 
-            <div className="flex gap-3 pt-4 border-t">
-              <Button 
-                variant="outline" 
-                className="flex-1"
-                onClick={() => {
-                  setShowAvailabilityDialog(false);
-                  setAvailabilityCheck(null);
-                  setOpen(false);
-                }}
-              >
-                Contact Blood Banks
-              </Button>
+            <div className="flex justify-end pt-4 border-t">
               <Button 
                 variant="default" 
-                className="flex-1"
                 onClick={postEmergency}
                 disabled={loading}
               >
