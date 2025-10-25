@@ -70,6 +70,7 @@ export const PosterDashboard = ({ userRole }: PosterDashboardProps) => {
   const [availabilityCheck, setAvailabilityCheck] = useState<BloodAvailability[] | null>(null);
   const [showAvailabilityDialog, setShowAvailabilityDialog] = useState(false);
   const [currentUser, setCurrentUser] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("posts");
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -268,40 +269,54 @@ export const PosterDashboard = ({ userRole }: PosterDashboardProps) => {
     }
   };
 
-  const startConversation = async (bloodBankId: string, emergencyPostId: string) => {
+  const startConversation = async (bloodBankId: string, emergencyPostId?: string | null) => {
     try {
       if (!currentUser) throw new Error("Not authenticated");
 
-      // Check if conversation already exists
-      const { data: existingConversation } = await supabase
+      // Check if conversation already exists between hospital and blood bank
+      let query = supabase
         .from("conversations")
         .select("id")
         .eq("hospital_id", currentUser)
-        .eq("blood_bank_id", bloodBankId)
-        .eq("emergency_post_id", emergencyPostId)
-        .single();
+        .eq("blood_bank_id", bloodBankId);
+
+      if (emergencyPostId) {
+        query = query.eq("emergency_post_id", emergencyPostId);
+      }
+
+      const { data: existingConversation } = await query.maybeSingle();
 
       if (existingConversation) {
         toast({
-          title: "Conversation exists",
-          description: "Opening existing conversation",
+          title: "Opening chat",
+          description: "Switching to messages...",
         });
+        setActiveTab("messages");
+        setShowAvailabilityDialog(false);
         return;
       }
 
       // Create new conversation
-      const { error } = await supabase.from("conversations").insert({
+      const conversationData: any = {
         hospital_id: currentUser,
         blood_bank_id: bloodBankId,
-        emergency_post_id: emergencyPostId,
-      });
+      };
+
+      if (emergencyPostId) {
+        conversationData.emergency_post_id = emergencyPostId;
+      }
+
+      const { error } = await supabase.from("conversations").insert(conversationData);
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Conversation started! Check the Messages tab.",
+        description: "Chat started! Switching to messages...",
       });
+
+      setActiveTab("messages");
+      setShowAvailabilityDialog(false);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -329,7 +344,7 @@ export const PosterDashboard = ({ userRole }: PosterDashboardProps) => {
   // If user is blood bank, show tabs with inventory
   if (userRole === 'blood_bank') {
     return (
-      <Tabs defaultValue="posts" className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-3 max-w-2xl">
           <TabsTrigger value="posts" className="flex items-center gap-2">
             <Droplet className="h-4 w-4" />
@@ -497,14 +512,10 @@ export const PosterDashboard = ({ userRole }: PosterDashboardProps) => {
                             variant="outline"
                             size="sm"
                             className="w-full mt-2"
-                            onClick={() => {
-                              // We'll need the emergency post ID to create conversation
-                              // For now, we'll pass null and create without post link
-                              startConversation(item.blood_bank_id, '');
-                            }}
+                            onClick={() => startConversation(item.blood_bank_id)}
                           >
                             <MessageSquare className="h-4 w-4 mr-2" />
-                            Start Chat
+                            Contact Bank
                           </Button>
                         </div>
                       </Card>
@@ -672,7 +683,7 @@ export const PosterDashboard = ({ userRole }: PosterDashboardProps) => {
 
   // For hospitals, show only posts (no inventory)
   return (
-    <Tabs defaultValue="posts" className="space-y-6">
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
       <TabsList className="grid w-full grid-cols-2 max-w-md">
         <TabsTrigger value="posts" className="flex items-center gap-2">
           <Droplet className="h-4 w-4" />
@@ -831,6 +842,15 @@ export const PosterDashboard = ({ userRole }: PosterDashboardProps) => {
                         {item.contact_phone}
                       </a>
                     </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full mt-2"
+                      onClick={() => startConversation(item.blood_bank_id)}
+                    >
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Contact Bank
+                    </Button>
                   </div>
                 </Card>
               ))}
