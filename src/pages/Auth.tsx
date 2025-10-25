@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Droplet } from "lucide-react";
+import { BloodFactLoader } from "@/components/BloodFactLoader";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -18,6 +19,7 @@ const Auth = () => {
   const [phone, setPhone] = useState("");
   const [organizationName, setOrganizationName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showFactLoader, setShowFactLoader] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -29,8 +31,16 @@ const Auth = () => {
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        toast({ title: "Welcome back!" });
-        navigate("/dashboard");
+        
+        // Show blood fact loader
+        setShowFactLoader(true);
+        
+        // Wait 8-10 seconds (random between 8000-10000ms)
+        const waitTime = Math.floor(Math.random() * 2000) + 8000;
+        setTimeout(() => {
+          toast({ title: "Welcome back!" });
+          navigate("/dashboard");
+        }, waitTime);
       } else {
         const { error } = await supabase.auth.signUp({
           email,
@@ -41,19 +51,29 @@ const Auth = () => {
           }
         });
         if (error) throw error;
-        toast({ title: "Account created successfully!" });
-        navigate("/dashboard");
+        
+        // Show blood fact loader
+        setShowFactLoader(true);
+        
+        // Wait 8-10 seconds (random between 8000-10000ms)
+        const waitTime = Math.floor(Math.random() * 2000) + 8000;
+        setTimeout(() => {
+          toast({ title: "Account created successfully!" });
+          navigate("/dashboard");
+        }, waitTime);
       }
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
-    } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10 p-4">
-      <Card className="w-full max-w-md p-8 backdrop-blur-sm bg-card/80 border-2">
+    <>
+      {showFactLoader && <BloodFactLoader />}
+      
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10 p-4">
+        <Card className="w-full max-w-md p-8 backdrop-blur-sm bg-card/80 border-2">
         <div className="flex items-center justify-center mb-6">
           <Droplet className="h-12 w-12 text-secondary mr-2" />
           <h1 className="text-3xl font-bold text-foreground">BloodLink</h1>
@@ -112,6 +132,7 @@ const Auth = () => {
         </Button>
       </Card>
     </div>
+    </>
   );
 };
 
