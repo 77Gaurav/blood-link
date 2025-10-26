@@ -1,73 +1,119 @@
-# Welcome to your Lovable project
+e-Blood-Bank
+🌐 Project Info
 
-## Project info
+URL: https://e-blood-bank.vercel.app
 
-**URL**: https://lovable.dev/projects/0311674f-0d75-4743-883e-515172b049fa
+e-Blood-Bank is a full-stack blood donation and emergency management platform connecting volunteers (donors), hospitals, and blood banks.
+It enables hospitals and banks to post emergency blood requests, while volunteers can respond instantly — saving lives through fast, transparent coordination.
 
-## How can I edit this code?
+⚙️ Tech Stack
 
-There are several ways of editing your application.
+This project is built using:
 
-**Use Lovable**
+⚡ Vite
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/0311674f-0d75-4743-883e-515172b049fa) and start prompting.
+⚛️ React + TypeScript
 
-Changes made via Lovable will be committed automatically to this repo.
+🎨 Tailwind CSS
 
-**Use your preferred IDE**
+🧱 shadcn/ui components
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+🗄️ Node.js (backend) + PostgreSQL (database)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+💻 Local Development Setup
 
-Follow these steps:
+You can edit and run this project locally using your preferred IDE.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+Step-by-step:
+# 1️⃣ Clone the repository
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# 2️⃣ Navigate to the project directory
+cd e-blood-bank
 
-# Step 3: Install the necessary dependencies.
-npm i
+# 3️⃣ Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# 4️⃣ Start the development server
 npm run dev
-```
 
-**Edit a file directly in GitHub**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+The app will automatically reload when you make changes.
+Visit http://localhost:5173
+ (or the shown port) to preview it.
 
-**Use GitHub Codespaces**
+🧑‍💻 Editing the Code
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+You can modify your app in any of the following ways:
 
-## What technologies are used for this project?
+🛠️ 1. Edit in your IDE
 
-This project is built with:
+Make code changes locally, then commit and push to your repository.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+🌍 2. Edit directly on GitHub
 
-## How can I deploy this project?
+Open the file you want to modify.
 
-Simply open [Lovable](https://lovable.dev/projects/0311674f-0d75-4743-883e-515172b049fa) and click on Share -> Publish.
+Click the ✏️ Edit button.
 
-## Can I connect a custom domain to my Lovable project?
+Commit your changes — they’ll reflect on your deployed app.
 
-Yes, you can!
+☁️ 3. Use GitHub Codespaces
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Run your project instantly in a cloud environment:
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Go to your repo → Code → Codespaces tab → New codespace
+
+Edit, test, and push from within the browser.
+
+🚀 Deployment
+
+This app can be deployed easily on Vercel or Netlify.
+
+To deploy on Vercel:
+
+Go to vercel.com
+
+Import your GitHub repository.
+
+Configure build settings if prompted (Vite + React defaults work fine).
+
+Click Deploy — your app will be live within seconds.
+
+🌐 Custom Domain
+
+You can connect your own domain:
+
+Go to your hosting provider (e.g., Vercel Dashboard → Settings → Domains)
+
+Click Add Domain
+
+Enter your domain name (e.g., ebloodbank.org)
+
+Update DNS as instructed
+
+🩸 Project Summary
+
+e-Blood-Bank simplifies the process of managing and fulfilling blood requirements:
+
+Hospitals & blood banks can post urgent blood requests.
+
+Volunteers can browse, respond, and track donation opportunities.
+
+Role-based dashboards for clear separation of responsibilities.
+
+AI integration (planned) to predict future blood demand and optimize availability.
+
+📈 Future Scope
+
+AI-driven demand prediction and analytics
+
+Gamified donor experience & certification
+
+Organ donation registry integration
+
+Smart notification and emergency routing system
+
+🧾 License
+
+This project is open source under the MIT License.
