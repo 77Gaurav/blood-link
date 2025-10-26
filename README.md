@@ -1,7 +1,7 @@
 e-Blood-Bank
 🌐 Project Info
 
-URL: https://e-blood-bank.vercel.app
+URL: https://blood-link-steel.vercel.app/
 
 e-Blood-Bank is a full-stack blood donation and emergency management platform connecting volunteers (donors), hospitals, and blood banks.
 It enables hospitals and banks to post emergency blood requests, while volunteers can respond instantly — saving lives through fast, transparent coordination.
@@ -26,10 +26,10 @@ You can edit and run this project locally using your preferred IDE.
 
 Step-by-step:
 # 1️⃣ Clone the repository
-git clone <YOUR_GIT_URL>
+git clone https://github.com/77Gaurav/blood-link/
 
 # 2️⃣ Navigate to the project directory
-cd e-blood-bank
+cd blood-link
 
 # 3️⃣ Install dependencies
 npm install
