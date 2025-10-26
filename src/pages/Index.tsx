@@ -2,9 +2,23 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Droplet, Heart, MapPin, Clock, Shield, Users } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { useState } from "react";
+import bloodDonationIllustration from "@/assets/blood-donation-illustration.png";
+
+const bloodCompatibility = {
+  "A+": { canReceive: ["O+", "O-", "A+", "A-"], canGive: ["A+", "AB+"] },
+  "A-": { canReceive: ["O-", "A-"], canGive: ["A+", "A-", "AB+", "AB-"] },
+  "B+": { canReceive: ["O+", "O-", "B+", "B-"], canGive: ["B+", "AB+"] },
+  "B-": { canReceive: ["O-", "B-"], canGive: ["B+", "B-", "AB+", "AB-"] },
+  "AB+": { canReceive: ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"], canGive: ["AB+"] },
+  "AB-": { canReceive: ["O-", "A-", "B-", "AB-"], canGive: ["AB+", "AB-"] },
+  "O+": { canReceive: ["O+", "O-"], canGive: ["O+", "A+", "B+", "AB+"] },
+  "O-": { canReceive: ["O-"], canGive: ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"] },
+};
 
 const Index = () => {
   const navigate = useNavigate();
+  const [selectedBloodType, setSelectedBloodType] = useState<string>("A+");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-secondary/10">
@@ -103,6 +117,88 @@ const Index = () => {
                 <h3 className="text-lg font-semibold mb-2">3. Connect & Save</h3>
                 <p className="text-sm text-muted-foreground">Get connected instantly and help save lives together</p>
               </Card>
+            </div>
+          </div>
+
+          {/* Learn About Donation Section */}
+          <div className="mb-20">
+            <h2 className="text-4xl font-bold mb-2 text-center">
+              <span className="bg-gradient-to-r from-secondary to-destructive bg-clip-text text-transparent">
+                Learn About Donation
+              </span>
+            </h2>
+            <p className="text-lg text-muted-foreground mb-8 text-center">Select your Blood Type</p>
+            
+            <div className="flex flex-wrap justify-center gap-4 mb-12">
+              {Object.keys(bloodCompatibility).map((bloodType) => (
+                <Button
+                  key={bloodType}
+                  variant={selectedBloodType === bloodType ? "default" : "outline"}
+                  size="lg"
+                  onClick={() => setSelectedBloodType(bloodType)}
+                  className={`text-xl font-bold min-w-[100px] h-16 transition-all ${
+                    selectedBloodType === bloodType 
+                      ? "bg-destructive hover:bg-destructive/90 text-white shadow-lg scale-105" 
+                      : "border-2 border-destructive/50 hover:border-destructive hover:bg-destructive/10"
+                  }`}
+                >
+                  {bloodType}
+                </Button>
+              ))}
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+              <div className="space-y-6">
+                <Card className="p-8 bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-2 border-amber-500/30">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center">
+                      <Droplet className="h-8 w-8 text-amber-600" />
+                    </div>
+                    <h3 className="text-2xl font-bold">You can take from</h3>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    {bloodCompatibility[selectedBloodType as keyof typeof bloodCompatibility].canReceive.map((type) => (
+                      <span
+                        key={type}
+                        className="px-4 py-2 bg-background/80 backdrop-blur-sm rounded-lg text-lg font-semibold border-2 border-amber-500/30"
+                      >
+                        {type}
+                      </span>
+                    ))}
+                  </div>
+                </Card>
+
+                <Card className="p-8 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-2 border-blue-500/30">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center">
+                      <Heart className="h-8 w-8 text-blue-600" />
+                    </div>
+                    <h3 className="text-2xl font-bold">You can give to</h3>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    {bloodCompatibility[selectedBloodType as keyof typeof bloodCompatibility].canGive.map((type) => (
+                      <span
+                        key={type}
+                        className="px-4 py-2 bg-background/80 backdrop-blur-sm rounded-lg text-lg font-semibold border-2 border-blue-500/30"
+                      >
+                        {type}
+                      </span>
+                    ))}
+                  </div>
+                </Card>
+              </div>
+
+              <div className="flex flex-col items-center justify-center">
+                <img 
+                  src={bloodDonationIllustration} 
+                  alt="Blood Donation Illustration" 
+                  className="w-full max-w-md rounded-lg"
+                />
+                <p className="text-center text-lg mt-6 font-medium">
+                  One Blood Donation can save upto{" "}
+                  <span className="text-destructive font-bold text-xl">Three Lives</span>
+                </p>
+              </div>
             </div>
           </div>
 
