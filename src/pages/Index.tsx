@@ -147,58 +147,44 @@ const Index = () => {
               ))}
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-              <div className="space-y-6">
-                <Card className="p-8 bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-2 border-amber-500/30">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center">
-                      <Droplet className="h-8 w-8 text-amber-600" />
-                    </div>
-                    <h3 className="text-2xl font-bold">You can take from</h3>
+            <div className="max-w-3xl mx-auto space-y-6">
+              <Card className="p-8 bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-2 border-amber-500/30">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center">
+                    <Droplet className="h-8 w-8 text-amber-600" />
                   </div>
-                  <div className="flex flex-wrap gap-3">
-                    {bloodCompatibility[selectedBloodType as keyof typeof bloodCompatibility].canReceive.map((type) => (
-                      <span
-                        key={type}
-                        className="px-4 py-2 bg-background/80 backdrop-blur-sm rounded-lg text-lg font-semibold border-2 border-amber-500/30"
-                      >
-                        {type}
-                      </span>
-                    ))}
-                  </div>
-                </Card>
+                  <h3 className="text-2xl font-bold">You can take from</h3>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  {bloodCompatibility[selectedBloodType as keyof typeof bloodCompatibility].canReceive.map((type) => (
+                    <span
+                      key={type}
+                      className="px-4 py-2 bg-background/80 backdrop-blur-sm rounded-lg text-lg font-semibold border-2 border-amber-500/30"
+                    >
+                      {type}
+                    </span>
+                  ))}
+                </div>
+              </Card>
 
-                <Card className="p-8 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-2 border-blue-500/30">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center">
-                      <Heart className="h-8 w-8 text-blue-600" />
-                    </div>
-                    <h3 className="text-2xl font-bold">You can give to</h3>
+              <Card className="p-8 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-2 border-blue-500/30">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center">
+                    <Heart className="h-8 w-8 text-blue-600" />
                   </div>
-                  <div className="flex flex-wrap gap-3">
-                    {bloodCompatibility[selectedBloodType as keyof typeof bloodCompatibility].canGive.map((type) => (
-                      <span
-                        key={type}
-                        className="px-4 py-2 bg-background/80 backdrop-blur-sm rounded-lg text-lg font-semibold border-2 border-blue-500/30"
-                      >
-                        {type}
-                      </span>
-                    ))}
-                  </div>
-                </Card>
-              </div>
-
-              <div className="flex flex-col items-center justify-center">
-                <img 
-                  src={bloodDonationIllustration} 
-                  alt="Blood Donation Illustration" 
-                  className="w-full max-w-md rounded-lg"
-                />
-                <p className="text-center text-lg mt-6 font-medium">
-                  One Blood Donation can save upto{" "}
-                  <span className="text-destructive font-bold text-xl">Three Lives</span>
-                </p>
-              </div>
+                  <h3 className="text-2xl font-bold">You can give to</h3>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  {bloodCompatibility[selectedBloodType as keyof typeof bloodCompatibility].canGive.map((type) => (
+                    <span
+                      key={type}
+                      className="px-4 py-2 bg-background/80 backdrop-blur-sm rounded-lg text-lg font-semibold border-2 border-blue-500/30"
+                    >
+                      {type}
+                    </span>
+                  ))}
+                </div>
+              </Card>
             </div>
           </div>
 
