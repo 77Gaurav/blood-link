@@ -147,7 +147,7 @@ const Index = () => {
               ))}
             </div>
 
-            <div className="max-w-3xl mx-auto space-y-6">
+            <div className="max-w-3xl mx-auto space-y-6 flex flex-col items-center">
               <Card className="p-8 bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-2 border-amber-500/30">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center">
