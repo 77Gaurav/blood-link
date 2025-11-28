@@ -270,6 +270,7 @@ export type Database = {
       profiles: {
         Row: {
           age: number | null
+          blood_sugar_level: string | null
           blood_type: string | null
           city: string | null
           created_at: string | null
@@ -279,17 +280,22 @@ export type Database = {
           id: string
           job_description: string | null
           location: string | null
+          major_diseases_history: string | null
           organization_name: string | null
           phone: string | null
+          previous_donation: boolean | null
           profile_completed: boolean | null
           profile_picture_url: string | null
           role: Database["public"]["Enums"]["user_role"]
           smoking_habit: string | null
+          stress_level: string | null
+          type_of_work: string | null
           updated_at: string | null
           weight: number | null
         }
         Insert: {
           age?: number | null
+          blood_sugar_level?: string | null
           blood_type?: string | null
           city?: string | null
           created_at?: string | null
@@ -299,17 +305,22 @@ export type Database = {
           id: string
           job_description?: string | null
           location?: string | null
+          major_diseases_history?: string | null
           organization_name?: string | null
           phone?: string | null
+          previous_donation?: boolean | null
           profile_completed?: boolean | null
           profile_picture_url?: string | null
           role: Database["public"]["Enums"]["user_role"]
           smoking_habit?: string | null
+          stress_level?: string | null
+          type_of_work?: string | null
           updated_at?: string | null
           weight?: number | null
         }
         Update: {
           age?: number | null
+          blood_sugar_level?: string | null
           blood_type?: string | null
           city?: string | null
           created_at?: string | null
@@ -319,12 +330,16 @@ export type Database = {
           id?: string
           job_description?: string | null
           location?: string | null
+          major_diseases_history?: string | null
           organization_name?: string | null
           phone?: string | null
+          previous_donation?: boolean | null
           profile_completed?: boolean | null
           profile_picture_url?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           smoking_habit?: string | null
+          stress_level?: string | null
+          type_of_work?: string | null
           updated_at?: string | null
           weight?: number | null
         }
