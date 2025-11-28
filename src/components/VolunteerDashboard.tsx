@@ -50,8 +50,19 @@ export const VolunteerDashboard = () => {
     weight: '',
     city: '',
     contact_number: '',
-    message: ''
+    message: '',
+    blood_sugar_level: '',
+    type_of_work: '',
+    stress_level: '',
+    previous_donation: false,
+    major_diseases_history: ''
   });
+  
+  const [showHospitals, setShowHospitals] = useState(false);
+  const [hospitals, setHospitals] = useState<any[]>([]);
+  const [selectedHospital, setSelectedHospital] = useState<string | null>(null);
+  const [appointmentDate, setAppointmentDate] = useState('');
+  const [appointmentNotes, setAppointmentNotes] = useState('');
 
   useEffect(() => {
     fetchEmergencyPosts();
@@ -80,7 +91,7 @@ export const VolunteerDashboard = () => {
 
           const { data: profile, error } = await supabase
             .from('profiles')
-            .select('full_name, age, gender, weight, city, phone')
+            .select('full_name, age, gender, weight, city, phone, job_description')
             .eq('id', user.id)
             .single();
 
@@ -101,7 +112,12 @@ export const VolunteerDashboard = () => {
               weight: profile.weight?.toString() || '',
               city: profile.city || '',
               contact_number: profile.phone || '',
-              message: ''
+              message: '',
+              blood_sugar_level: '',
+              type_of_work: profile.job_description || '',
+              stress_level: '',
+              previous_donation: false,
+              major_diseases_history: ''
             });
 
             if (!isComplete) {
@@ -124,9 +140,15 @@ export const VolunteerDashboard = () => {
           weight: '',
           city: '',
           contact_number: '',
-          message: ''
+          message: '',
+          blood_sugar_level: '',
+          type_of_work: '',
+          stress_level: '',
+          previous_donation: false,
+          major_diseases_history: ''
         });
         setProfileIncomplete(false);
+        setShowHospitals(false);
       }
     };
 
@@ -174,12 +196,78 @@ export const VolunteerDashboard = () => {
         weight: parseFloat(volunteerData.weight),
         city: volunteerData.city,
         contact_number: volunteerData.contact_number,
-        message: volunteerData.message
+        message: volunteerData.message,
+        blood_sugar_level: volunteerData.blood_sugar_level,
+        type_of_work: volunteerData.type_of_work,
+        stress_level: volunteerData.stress_level,
+        previous_donation: volunteerData.previous_donation,
+        major_diseases_history: volunteerData.major_diseases_history
       });
 
       if (error) throw error;
-      toast({ title: "Success", description: "Your participation has been recorded!" });
+      
+      // Fetch hospitals after successful participation
+      await fetchHospitals();
+      setShowHospitals(true);
+      
+      toast({ title: "Success", description: "Details saved! Now select a hospital to book an appointment." });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+  
+  const fetchHospitals = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, organization_name, phone, city, location')
+        .eq('role', 'hospital');
+      
+      if (error) throw error;
+      setHospitals(data || []);
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+  
+  const handleBookAppointment = async () => {
+    if (!selectedHospital || !appointmentDate) {
+      toast({ 
+        title: "Missing Information", 
+        description: "Please select a hospital and appointment date",
+        variant: "destructive" 
+      });
+      return;
+    }
+    
+    setSubmitting(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { error } = await supabase.from('appointments').insert({
+        volunteer_id: user.id,
+        hospital_id: selectedHospital,
+        emergency_post_id: selectedPost,
+        appointment_date: appointmentDate,
+        notes: appointmentNotes,
+        status: 'pending'
+      });
+
+      if (error) throw error;
+      
+      toast({ 
+        title: "Appointment Booked!", 
+        description: "The hospital will confirm your appointment soon." 
+      });
+      
       setSelectedPost(null);
+      setShowHospitals(false);
+      setSelectedHospital(null);
+      setAppointmentDate('');
+      setAppointmentNotes('');
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
@@ -280,100 +368,222 @@ export const VolunteerDashboard = () => {
       <Dialog open={!!selectedPost} onOpenChange={(open) => !open && setSelectedPost(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Volunteer to Help</DialogTitle>
+            <DialogTitle>{showHospitals ? "Select Hospital & Book Appointment" : "Volunteer to Help"}</DialogTitle>
             <DialogDescription>
-              {profileIncomplete 
-                ? "Please complete all required fields. Your profile data has been pre-filled where available."
-                : "Your details have been pre-filled from your profile. You can modify them if needed."
+              {showHospitals 
+                ? "Choose a hospital and schedule your donation appointment"
+                : profileIncomplete 
+                  ? "Please complete all required fields. Your profile data has been pre-filled where available."
+                  : "Your details have been pre-filled from your profile. You can modify them if needed."
               }
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleParticipate} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          
+          {!showHospitals ? (
+            <form onSubmit={handleParticipate} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Full Name *</Label>
+                  <Input 
+                    value={volunteerData.volunteer_name} 
+                    onChange={(e) => setVolunteerData({...volunteerData, volunteer_name: e.target.value})}
+                    required 
+                  />
+                </div>
+
+                <div>
+                  <Label>Age *</Label>
+                  <Input 
+                    type="number"
+                    value={volunteerData.age} 
+                    onChange={(e) => setVolunteerData({...volunteerData, age: e.target.value})}
+                    min="18"
+                    max="65"
+                    required 
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Gender *</Label>
+                  <Select value={volunteerData.gender} onValueChange={(v) => setVolunteerData({...volunteerData, gender: v})} required>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select gender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="male">Male</SelectItem>
+                      <SelectItem value="female">Female</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label>Weight (kg) *</Label>
+                  <Input 
+                    type="number"
+                    step="0.1"
+                    value={volunteerData.weight} 
+                    onChange={(e) => setVolunteerData({...volunteerData, weight: e.target.value})}
+                    min="45"
+                    required 
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>City *</Label>
+                  <Input 
+                    value={volunteerData.city} 
+                    onChange={(e) => setVolunteerData({...volunteerData, city: e.target.value})}
+                    required 
+                  />
+                </div>
+
+                <div>
+                  <Label>Contact Number *</Label>
+                  <Input 
+                    type="tel"
+                    value={volunteerData.contact_number} 
+                    onChange={(e) => setVolunteerData({...volunteerData, contact_number: e.target.value})}
+                    placeholder="+1234567890"
+                    required 
+                  />
+                </div>
+              </div>
+
               <div>
-                <Label>Full Name *</Label>
+                <Label>Blood Sugar Level *</Label>
                 <Input 
-                  value={volunteerData.volunteer_name} 
-                  onChange={(e) => setVolunteerData({...volunteerData, volunteer_name: e.target.value})}
+                  value={volunteerData.blood_sugar_level} 
+                  onChange={(e) => setVolunteerData({...volunteerData, blood_sugar_level: e.target.value})}
+                  placeholder="e.g., Normal, Pre-diabetic, Diabetic"
                   required 
                 />
               </div>
 
               <div>
-                <Label>Age *</Label>
+                <Label>Type of Work *</Label>
                 <Input 
-                  type="number"
-                  value={volunteerData.age} 
-                  onChange={(e) => setVolunteerData({...volunteerData, age: e.target.value})}
-                  min="18"
-                  max="65"
+                  value={volunteerData.type_of_work} 
+                  onChange={(e) => setVolunteerData({...volunteerData, type_of_work: e.target.value})}
+                  placeholder="e.g., Office work, Physical labor, etc."
                   required 
                 />
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Gender *</Label>
-                <Select value={volunteerData.gender} onValueChange={(v) => setVolunteerData({...volunteerData, gender: v})} required>
+                <Label>Stress Level *</Label>
+                <Select value={volunteerData.stress_level} onValueChange={(v) => setVolunteerData({...volunteerData, stress_level: v})} required>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select gender" />
+                    <SelectValue placeholder="Select stress level" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="male">Male</SelectItem>
-                    <SelectItem value="female">Female</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="moderate">Moderate</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="previous_donation"
+                  checked={volunteerData.previous_donation}
+                  onChange={(e) => setVolunteerData({...volunteerData, previous_donation: e.target.checked})}
+                  className="h-4 w-4"
+                />
+                <Label htmlFor="previous_donation" className="cursor-pointer">
+                  I have participated in blood donation earlier
+                </Label>
+              </div>
+
               <div>
-                <Label>Weight (kg) *</Label>
-                <Input 
-                  type="number"
-                  step="0.1"
-                  value={volunteerData.weight} 
-                  onChange={(e) => setVolunteerData({...volunteerData, weight: e.target.value})}
-                  min="45"
-                  required 
+                <Label>Major Diseases History</Label>
+                <Textarea 
+                  value={volunteerData.major_diseases_history} 
+                  onChange={(e) => setVolunteerData({...volunteerData, major_diseases_history: e.target.value})}
+                  placeholder="List any major diseases or health conditions (or write 'None')"
+                  rows={3}
                 />
               </div>
-            </div>
 
-            <div>
-              <Label>City *</Label>
-              <Input 
-                value={volunteerData.city} 
-                onChange={(e) => setVolunteerData({...volunteerData, city: e.target.value})}
-                required 
-              />
-            </div>
+              <div>
+                <Label>Additional Message (Optional)</Label>
+                <Textarea 
+                  value={volunteerData.message} 
+                  onChange={(e) => setVolunteerData({...volunteerData, message: e.target.value})}
+                  placeholder="Any additional information you'd like to share"
+                  rows={2}
+                />
+              </div>
 
-            <div>
-              <Label>Contact Number *</Label>
-              <Input 
-                type="tel"
-                value={volunteerData.contact_number} 
-                onChange={(e) => setVolunteerData({...volunteerData, contact_number: e.target.value})}
-                placeholder="+1234567890"
-                required 
-              />
-            </div>
+              <Button type="submit" className="w-full" disabled={submitting}>
+                {submitting ? "Submitting..." : "Continue to Hospital Selection"}
+              </Button>
+            </form>
+          ) : (
+            <div className="space-y-4">
+              <div className="space-y-3 max-h-60 overflow-y-auto">
+                {hospitals.map((hospital) => (
+                  <Card 
+                    key={hospital.id}
+                    className={`p-4 cursor-pointer transition-all ${
+                      selectedHospital === hospital.id ? 'ring-2 ring-primary' : 'hover:shadow-md'
+                    }`}
+                    onClick={() => setSelectedHospital(hospital.id)}
+                  >
+                    <h4 className="font-semibold">{hospital.organization_name || hospital.full_name}</h4>
+                    {hospital.city && <p className="text-sm text-muted-foreground">City: {hospital.city}</p>}
+                    {hospital.location && <p className="text-sm text-muted-foreground">Location: {hospital.location}</p>}
+                    {hospital.phone && <p className="text-sm text-muted-foreground">Phone: {hospital.phone}</p>}
+                  </Card>
+                ))}
+              </div>
 
-            <div>
-              <Label>Additional Message (Optional)</Label>
-              <Textarea 
-                value={volunteerData.message} 
-                onChange={(e) => setVolunteerData({...volunteerData, message: e.target.value})}
-                placeholder="Any additional information you'd like to share"
-                rows={3}
-              />
-            </div>
+              <div>
+                <Label>Appointment Date & Time *</Label>
+                <Input 
+                  type="datetime-local"
+                  value={appointmentDate}
+                  onChange={(e) => setAppointmentDate(e.target.value)}
+                  min={new Date().toISOString().slice(0, 16)}
+                  required
+                />
+              </div>
 
-            <Button type="submit" className="w-full" disabled={submitting}>
-              {submitting ? "Submitting..." : "Submit Response"}
-            </Button>
-          </form>
+              <div>
+                <Label>Notes for Hospital (Optional)</Label>
+                <Textarea 
+                  value={appointmentNotes}
+                  onChange={(e) => setAppointmentNotes(e.target.value)}
+                  placeholder="Any specific requirements or questions"
+                  rows={3}
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setShowHospitals(false)}
+                  className="flex-1"
+                >
+                  Back
+                </Button>
+                <Button 
+                  onClick={handleBookAppointment}
+                  disabled={!selectedHospital || !appointmentDate || submitting}
+                  className="flex-1"
+                >
+                  {submitting ? "Booking..." : "Book Appointment"}
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
