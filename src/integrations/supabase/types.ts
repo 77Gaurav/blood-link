@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          appointment_date: string
+          created_at: string
+          emergency_post_id: string | null
+          hospital_id: string
+          id: string
+          notes: string | null
+          status: string
+          updated_at: string
+          volunteer_id: string
+        }
+        Insert: {
+          appointment_date: string
+          created_at?: string
+          emergency_post_id?: string | null
+          hospital_id: string
+          id?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+          volunteer_id: string
+        }
+        Update: {
+          appointment_date?: string
+          created_at?: string
+          emergency_post_id?: string | null
+          hospital_id?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+          volunteer_id?: string
+        }
+        Relationships: []
+      }
       blood_inventory: {
         Row: {
           blood_bank_id: string
@@ -159,42 +195,57 @@ export type Database = {
       participations: {
         Row: {
           age: number | null
+          blood_sugar_level: string | null
           city: string | null
           contact_number: string | null
           created_at: string | null
           emergency_id: string
           gender: string | null
           id: string
+          major_diseases_history: string | null
           message: string | null
+          previous_donation: boolean | null
           status: string
+          stress_level: string | null
+          type_of_work: string | null
           volunteer_id: string
           volunteer_name: string | null
           weight: number | null
         }
         Insert: {
           age?: number | null
+          blood_sugar_level?: string | null
           city?: string | null
           contact_number?: string | null
           created_at?: string | null
           emergency_id: string
           gender?: string | null
           id?: string
+          major_diseases_history?: string | null
           message?: string | null
+          previous_donation?: boolean | null
           status?: string
+          stress_level?: string | null
+          type_of_work?: string | null
           volunteer_id: string
           volunteer_name?: string | null
           weight?: number | null
         }
         Update: {
           age?: number | null
+          blood_sugar_level?: string | null
           city?: string | null
           contact_number?: string | null
           created_at?: string | null
           emergency_id?: string
           gender?: string | null
           id?: string
+          major_diseases_history?: string | null
           message?: string | null
+          previous_donation?: boolean | null
           status?: string
+          stress_level?: string | null
+          type_of_work?: string | null
           volunteer_id?: string
           volunteer_name?: string | null
           weight?: number | null
